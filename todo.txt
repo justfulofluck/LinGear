@@ -1,0 +1,120 @@
+
+Base Applicatioin:
+ -- For demonstration, let's use a Python script with a graphical message box
+
+- Create a Simple "Hello World" App
+1. nano /home/server/hello.py
+<program>
+#!/usr/bin/env python3
+import tkinter as tk
+from tkinter import messagebox
+
+root = tk.Tk()
+root.withdraw()  # Hide the main window
+messagebox.showinfo("Hello", "Hello World")
+
+2. sudo chmod 777 /home/server/hello.py
+
+- Create a Desktop Launcher
+1. sudo nano /home/server/hello.desktop
+<Program>
+[Desktop Entry]
+Type=Application
+Name=Hello World
+Exec=/home/YOUR_USERNAME/hello.py
+Icon=dialog-information
+Terminal=false
+
+>> Replace /home/YOUR_USERNAME/hello.py with the actual path to your script.
+
+- Add the App to AutoStart
+1. mkdir -p ~/.config/autostart
+2. cp ~/hello.desktop ~/.config/autostart/
+3. sudo reboot
+
+
+---------------------------------------------------------------------
+
+Single-App Kiosk Boot
+ - Install Minimal X Environment
+1. sudo apt update
+2. sudo apt install xserver-xorg xinit openbox
+
+ - Create a Script to Launch X and Your App
+1. sudo mkdir /usr/local/bin/start-kiosk.sh
+2. sudo nano /usr/local/bin/start-kiosk.sh
+	-- #!/bin/bash
+           xinit /usr/local/bin/kiosk-app.sh -- :0
+3. sudo chmod 777 /usr/local/bin/start-kiosk.sh
+4. sudo mkdir /usr/local/bin/kiosk-app.sh
+5. sduo nano /usr/local/bin/kiosk-app.sh
+	-- #!/bin/bash
+	   # Optional: start a minimal window manager if needed
+	     openbox &
+	   # Launch your app (replace with your app's path)
+	     exec /home/server/hello.py
+6. sudo chmod 777 /usr/local/bin/kiosk-app.sh
+
+ - Create a systemd Service
+1. sudo nano /etc/systemd/system/kiosk.service
+
+[Unit]
+Description=Kiosk Mode
+After=network.target
+
+[Service]
+Type=simple
+User=server
+Environment=HOME=/home/<username>
+ExecStart=/usr/local/bin/start-kiosk.sh
+Restart=always
+
+[Install]
+WantedBy=graphical.target
+
+>> Replace <username> with your actual username
+2. sudo systemctl enable kiosk.service
+
+ - Remove or Disable the Display/Login Manager
+1. sudo systemctl disable lightdm
+2. sudo reboot.
+
+
+---------------------------------------------------------------------
+ - Enable Automatic Console Login (No Username/Password Prompt)
+- Use systemd's autologin feature for getty
+1. sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
+2. sudo nano /etc/systemd/system/getty@tty1.service.d/override.conf
+
+<program>
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --autologin server --noclear %I $TERM
+
+
+>>(replace server with your username)
+3. sudo systemctl daemon-reload
+4. sudo reboot
+ 
+
+---------------------------------------------------------------------
+- Install Plymouth and Themes
+1. sudo apt update
+2. sudo apt install plymouth plymouth-themes git
+3. sudo mikir ~/theme
+4. cd ~/theme 
+5. git clone https://github.com/adi1090x/plymouth-themes.git
+6. cd plymouth-themes/pack_1/future
+7. sudo cp -r future /usr/share/plymouth/themes/
+8. sudo update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/future/future.plymouth 100
+sudo update-alternatives --config default.plymouth
+9. sudo update-initramfs -u
+10. sudo nano /etc/default/grub
+	 GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
+11. sudo update-grub
+12. sudo reboot
+
+
+
+
+
