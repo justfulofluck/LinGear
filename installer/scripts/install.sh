@@ -31,7 +31,8 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 # Run pre-installation checks
 run_pre_install() {
     log_info "Running pre-installation checks..."
-    if ! ./pre-install.sh; then
+    if ! "$INSTALLER_DIR/pre-install.sh"
+; then
         log_error "Pre-installation checks failed"
         exit 1
     fi
@@ -67,7 +68,8 @@ install_framework_deps() {
     local framework=$1
     log_info "Installing $framework dependencies..."
     
-    if ! ./dependency-checker.sh "$framework"; then
+    if ! "$INSTALLER_DIR/dependency-checker.sh" "$framework"
+; then
         log_error "Failed to install $framework dependencies"
         return 1
     fi
@@ -93,7 +95,7 @@ setup_kiosk_service() {
     log_info "Setting up kiosk service..."
     
     # Copy and configure service file
-    sudo cp ../config/kiosk.service /etc/systemd/system/
+   sudo cp "$INSTALLER_DIR/../config/kiosk.service" /etc/systemd/system/
     sudo sed -i "s/%USER%/$USER_NAME/g" /etc/systemd/system/kiosk.service
     
     # Create launcher script
