@@ -1,6 +1,3 @@
-Sure! Here's a clean and professional `README.md` file for your **LinGear** project, formatted properly for GitHub:
-
----
 
 ```markdown
 # LinGear
@@ -118,7 +115,3 @@ Feel free to open an issue or contact the maintainer via GitHub for questions an
 
 ```
 
----
-
-Let me know if you'd like me to generate a `LICENSE` file or create sample folders and scripts for Qt, Tkinter, or LVGL apps.
-```
