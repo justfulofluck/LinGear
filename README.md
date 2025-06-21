@@ -111,7 +111,7 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 
 ## 📬 Contact
 
-Feel free to open an issue or contact the maintainer via GitHub for questions and suggestions.
+bhavanbadhe@gmail.com
 
 ```
 
