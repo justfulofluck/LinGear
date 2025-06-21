@@ -7,9 +7,10 @@ read -rp "Enter the kiosk application name: " APP_NAME
 
 # Save them to config for later use
 mkdir -p /etc/kiosk
-echo "$APP_USER" > /etc/kiosk/user
-echo "$APP_PASS" > /etc/kiosk/pass
-echo "$APP_NAME" > /etc/kiosk/appname
+sudo mkdir -p /etc/kiosk
+echo "$APP_USER" | sudo tee /etc/kiosk/user > /dev/null
+echo "$APP_PASS" | sudo tee /etc/kiosk/pass > /dev/null
+echo "$APP_NAME" | sudo tee /etc/kiosk/appname > /dev/null
 
 
 # Color codes for output
@@ -31,8 +32,7 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 # Run pre-installation checks
 run_pre_install() {
     log_info "Running pre-installation checks..."
-    if ! "$INSTALLER_DIR/pre-install.sh"
-; then
+     if ! bash "$INSTALLER_DIR/pre-install.sh"; then
         log_error "Pre-installation checks failed"
         exit 1
     fi
