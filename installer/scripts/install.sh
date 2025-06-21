@@ -131,8 +131,10 @@ main() {
 
 # Setup Plymouth theme
 echo "Setting up Plymouth boot splash..."
-chmod +x "$INSTALLER_DIR/plymouth/setup-plymouth.sh"
-"$INSTALLER_DIR/plymouth/setup-plymouth.sh"
+INSTALLER_DIR="$(dirname "$(realpath "$0")")"
+chmod +x "$INSTALLER_DIR/../plymouth/setup-plymouth.sh"
+"$INSTALLER_DIR/../plymouth/setup-plymouth.sh"
+
 
 # ... existing code ...
 
