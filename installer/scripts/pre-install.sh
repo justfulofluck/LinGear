@@ -12,23 +12,36 @@ check_os() {
 }
 
 check_dependencies() {
-    local deps=("python3" "git" "cmake" "gcc" "g++")
-    local missing_deps=()
-
-    echo "\nChecking basic dependencies..."
-    for dep in "${deps[@]}"; do
-        if ! command -v $dep >/dev/null 2>&1; then
-            missing_deps+=("$dep")
-        fi
-    done
-
-    if [ ${#missing_deps[@]} -ne 0 ]; then
-        echo "Missing dependencies: ${missing_deps[*]}"
-        return 1
+  local deps=("python3" "git" "cmake" "gcc" "g++")
+  local missing_deps=()
+  echo -e "\nChecking basic dependencies..."
+  for dep in "${deps[@]}"; do
+    if ! command -v "$dep" >/dev/null 2>&1; then
+      missing_deps+=("$dep")
     fi
-    echo "All basic dependencies are installed"
-    return 0
+  done
+
+  if [ ${#missing_deps[@]} -ne 0 ]; then
+    echo -e "\nMissing dependencies: ${missing_deps[*]}"
+    read -rp "Do you want to install them now? [Y/n] " confirm
+    confirm="${confirm,,}"  # to lowercase
+
+    if [[ "$confirm" =~ ^(y|yes|)$ ]]; then
+      echo -e "\nInstalling missing packages..."
+      sudo apt update
+      sudo apt install -y "${missing_deps[@]}"
+      echo -e "\nDependencies installed. Re-running checks..."
+      exec bash "$0"
+    else
+      echo -e "\nPlease install the missing packages manually and re-run the installer."
+      exit 1
+    fi
+  fi
+
+  echo "All basic dependencies are installed"
+  return 0
 }
+
 
 check_disk_space() {
     local required_space=5000000  # 5GB in KB
