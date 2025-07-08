@@ -1,9 +1,29 @@
 #!/bin/bash
 
+# Ask for project name
+read -p "Enter your Qt project name: " PROJECT_NAME
+if [ -z "$PROJECT_NAME" ]; then
+    echo "Project name cannot be empty."
+    exit 1
+fi
+
+# Ask for app name
+read -p "Enter your application name: " APP_NAME
+if [ -z "$APP_NAME" ]; then
+    echo "Application name cannot be empty."
+    exit 1
+fi
+
+# Set user home if not already set
+USER_HOME="${USER_HOME:-$HOME}"
+
+# Set app path (you can modify this as needed)
+APP_PATH="$USER_HOME/$PROJECT_NAME/$APP_NAME"
+
 echo "==> Building Qt Hello World application..."
 
-mkdir -p "$USER_HOME/qt-kiosk-app"
-cd "$USER_HOME/qt-kiosk-app"
+mkdir -p "$USER_HOME/$PROJECT_NAME"
+cd "$USER_HOME/$PROJECT_NAME" || exit 1
 
 cat > main.cpp << 'EOF'
 #include <QApplication>
@@ -20,19 +40,19 @@ int main(int argc, char *argv[]) {
 }
 EOF
 
-cat > hello_qt.pro << 'EOF'
+cat > "$APP_NAME.pro" << EOF
 QT += core gui widgets
 CONFIG += c++11
-TARGET = hello_qt
+TARGET = $APP_NAME
 TEMPLATE = app
 SOURCES += main.cpp
 EOF
 
-qmake hello_qt.pro
+qmake "$APP_NAME.pro"
 make
 
-sudo cp hello_qt "$APP_PATH"
+sudo cp "$APP_NAME" "$APP_PATH"
 sudo chmod +x "$APP_PATH"
-sudo chown $USER_NAME:$USER_NAME "$APP_PATH"
+sudo chown $USER:$USER "$APP_PATH"
 
-echo "==> Qt Hello World application built successfully."
+echo "==> Build complete. Application is at $APP_PATH"
