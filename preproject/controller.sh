@@ -3,46 +3,56 @@
 set -e
 
 MODULES_DIR="./modules"
-echo "🚀 Starting LinGear Setup..."
 
-# Clock emoji animation
-emoji_hour=( 0.08 '🕛' '🕐' '🕑' '🕒' '🕓' '🕔' '🕕' '🕖' '🕗' '🕘' '🕙' '🕚' )
+echo "🚀 Starting Kiosk Setup..."
 
-# Trap to catch which module failed
-trap 'echo -e "\n❌ Error occurred in: $CURRENT_STEP"; exit 1' ERR
+# Trap errors and print message
+trap 'echo "❌ Error occurred in: $CURRENT_STEP"; exit 1' ERR
 
-# Clock animation function
-clock_spin() {
-    local pid=$1
-    local i=1
-    while kill -0 $pid 2>/dev/null; do
-        printf " ${emoji_hour[i]}  "
-        ((i=(i%12)+1))
-        sleep "${emoji_hour[0]}"
-        printf "\b\b\b\b\b"
-    done
-}
+# Step-by-step execution
+CURRENT_STEP="detect_user.sh"
+source "$MODULES_DIR/detect_user.sh"
+echo "✅ Completed: $CURRENT_STEP"
 
-# Function to execute a module with animation
-run_step() {
-    CURRENT_STEP="$1"
-    echo -n "🔧 Running: $CURRENT_STEP"
-    ( source "$MODULES_DIR/$CURRENT_STEP" ) &
-    clock_spin $!
-    echo " ✅"
-}
+CURRENT_STEP="install_packages.sh"
+source "$MODULES_DIR/install_packages.sh"
+echo "✅ Completed: $CURRENT_STEP"
 
-# Run each module in order
-run_step "detect_user.sh"
-run_step "install_packages.sh"
-run_step "create_kiosk_scripts.sh"
-run_step "systemd_service.sh"
-run_step "disable_display_manager.sh"
-run_step "autologin_tty1.sh"
-run_step "xwrapper_config.sh"
-run_step "build_qt_app.sh"
-run_step "plymouth_theme.sh"
-run_step "grub_bootloader.sh"
-run_step "bash_profile_autostart.sh"
+CURRENT_STEP="create_kiosk_scripts.sh"
+source "$MODULES_DIR/create_kiosk_scripts.sh"
+echo "✅ Completed: $CURRENT_STEP"
 
-echo -e "\n🎉 All modules executed successfully. Please reboot your system to enter kiosk mode."
+CURRENT_STEP="systemd_service.sh"
+source "$MODULES_DIR/systemd_service.sh"
+echo "✅ Completed: $CURRENT_STEP"
+
+CURRENT_STEP="disable_display_manager.sh"
+source "$MODULES_DIR/disable_display_manager.sh"
+echo "✅ Completed: $CURRENT_STEP"
+
+CURRENT_STEP="autologin_tty1.sh"
+source "$MODULES_DIR/autologin_tty1.sh"
+echo "✅ Completed: $CURRENT_STEP"
+
+CURRENT_STEP="xwrapper_config.sh"
+source "$MODULES_DIR/xwrapper_config.sh"
+echo "✅ Completed: $CURRENT_STEP"
+
+CURRENT_STEP="build_qt_app.sh"
+source "$MODULES_DIR/build_qt_app.sh"
+echo "✅ Completed: $CURRENT_STEP"
+
+CURRENT_STEP="plymouth_theme.sh"
+source "$MODULES_DIR/plymouth_theme.sh"
+echo "✅ Completed: $CURRENT_STEP"
+
+CURRENT_STEP="grub_bootloader.sh"
+source "$MODULES_DIR/grub_bootloader.sh"
+echo "✅ Completed: $CURRENT_STEP"
+
+CURRENT_STEP="bash_profile_autostart.sh"
+source "$MODULES_DIR/bash_profile_autostart.sh"
+echo "✅ Completed: $CURRENT_STEP"
+
+
+echo "🎉 All modules executed successfully. Please reboot your system to enter kiosk mode."
