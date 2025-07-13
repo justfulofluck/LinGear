@@ -38,10 +38,6 @@ CURRENT_STEP="autologin_tty1.sh"
 source "$MODULES_DIR/autologin_tty1.sh"
 echo "✅ Completed: $CURRENT_STEP"
 
-CURRENT_STEP="xwrapper_config.sh"
-source "$MODULES_DIR/wrapper_config.sh"
-echo "✅ Completed: $CURRENT_STEP"
-
 CURRENT_STEP="build_qt_app.sh"
 source "$MODULES_DIR/build_qt_app.sh"
 echo "✅ Completed: $CURRENT_STEP"
