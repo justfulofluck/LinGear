@@ -2,50 +2,20 @@
 
 set -e
 
-# Add version information
-VERSION="1.0.0"
-echo "🚀 Starting Kiosk Setup (v$VERSION)..."
-
-# Add configuration file support
-CONFIG_FILE="./kiosk_config.conf"
-if [ -f "$CONFIG_FILE" ]; then
-    echo "Loading configuration from $CONFIG_FILE"
-    source "$CONFIG_FILE"
-fi
-
 MODULES_DIR="./modules"
 
-# Add command line options
-while getopts "hu:" opt; do
-    case $opt in
-        h)
-            echo "Usage: $0 [-h] [-u username]" 
-            echo "  -h: Show this help"
-            echo "  -u: Specify username (default: current user)"
-            exit 0
-            ;;
-        u)
-            OVERRIDE_USER=$OPTARG
-            ;;
-        \?)
-            echo "Invalid option: -$OPTARG" >&2
-            exit 1
-            ;;
-    esac
-done
-
-# Add logging function
-LOG_FILE="kiosk_setup.log"
-function log {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
-}
+echo "🚀 Starting Kiosk Setup..."
 
 # Trap errors and print message
-trap 'log "❌ Error occurred in: $CURRENT_STEP"; exit 1' ERR
+trap 'echo "❌ Error occurred in: $CURRENT_STEP"; exit 1' ERR
 
 # Step-by-step execution
 CURRENT_STEP="detect_user.sh"
 source "$MODULES_DIR/detect_user.sh"
+echo "✅ Completed: $CURRENT_STEP"
+
+CURRENT_STEP="setup_permissions.sh"
+source "$MODULES_DIR/setup_permissions.sh"
 echo "✅ Completed: $CURRENT_STEP"
 
 CURRENT_STEP="install_packages.sh"
