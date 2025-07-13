@@ -38,8 +38,9 @@ done
 # Set user home if not already set
 USER_HOME="${USER_HOME:-$HOME}"
 
-# Set app path (you can modify this as needed)
-APP_PATH="$USER_HOME/$PROJECT_NAME/$APP_NAME"
+# Set app path to a different location than the build directory
+BUILD_DIR="$USER_HOME/$PROJECT_NAME"
+APP_PATH="/usr/local/bin/$APP_NAME"
 
 echo "==> Building Qt Hello World application..."
 
@@ -50,14 +51,14 @@ if ! command -v qmake &> /dev/null; then
 fi
 
 # Create backup if directory exists
-if [ -d "$USER_HOME/$PROJECT_NAME" ]; then
+if [ -d "$BUILD_DIR" ]; then
     BACKUP_DIR="$USER_HOME/${PROJECT_NAME}_backup_$(date +%Y%m%d%H%M%S)"
     echo "Directory already exists. Creating backup at $BACKUP_DIR"
-    cp -r "$USER_HOME/$PROJECT_NAME" "$BACKUP_DIR"
+    cp -r "$BUILD_DIR" "$BACKUP_DIR"
 fi
 
-mkdir -p "$USER_HOME/$PROJECT_NAME"
-cd "$USER_HOME/$PROJECT_NAME" || exit 1
+mkdir -p "$BUILD_DIR"
+cd "$BUILD_DIR" || exit 1
 
 cat > main.cpp << 'EOF'
 #include <QApplication>
@@ -85,6 +86,14 @@ EOF
 qmake "$APP_NAME.pro"
 make
 
+# Check if the build was successful
+if [ ! -f "$APP_NAME" ]; then
+    echo "Error: Build failed. Application binary not found."
+    exit 1
+fi
+
+# Copy to a different location to avoid the same-file error
+sudo mkdir -p $(dirname "$APP_PATH")
 sudo cp "$APP_NAME" "$APP_PATH"
 sudo chmod +x "$APP_PATH"
 sudo chown $USER:$USER "$APP_PATH"
