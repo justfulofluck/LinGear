@@ -5,9 +5,6 @@ check_framework_dependencies() {
     echo "Checking dependencies for $framework..."
 
     case $framework in
-        "tkinter")
-            check_tkinter_deps
-            ;;
         "qt")
             check_qt_deps
             ;;
@@ -19,11 +16,6 @@ check_framework_dependencies() {
             return 1
             ;;
     esac
-}
-
-check_tkinter_deps() {
-    local deps=("python3" "python3-tk" "python3-pip")
-    check_packages "${deps[@]}"
 }
 
 check_qt_deps() {
@@ -51,6 +43,3 @@ check_packages() {
     echo "All dependencies are installed"
     return 0
 }
-
-# Usage example
-# check_framework_dependencies "tkinter"

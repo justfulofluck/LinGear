@@ -32,9 +32,6 @@ verify_framework() {
     log_info "Verifying $framework installation..."
 
     case $framework in
-        "tkinter")
-            verify_tkinter
-            ;;
         "qt")
             verify_qt
             ;;
@@ -46,15 +43,6 @@ verify_framework() {
             return 1
             ;;
     esac
-}
-
-# Framework-specific verification functions
-verify_tkinter() {
-    python3 -c "import tkinter" || {
-        log_error "Tkinter installation verification failed"
-        return 1
-    }
-    log_info "Tkinter installation verified"
 }
 
 verify_qt() {

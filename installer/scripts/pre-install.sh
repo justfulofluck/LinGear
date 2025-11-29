@@ -14,7 +14,7 @@ check_os() {
 check_dependencies() {
   local deps=("python3" "git" "cmake" "gcc" "g++")
   local missing_deps=()
-  echo -e "\nChecking basic dependencies..."
+    echo -e "\nChecking basic dependencies..."
   for dep in "${deps[@]}"; do
     if ! command -v "$dep" >/dev/null 2>&1; then
       missing_deps+=("$dep")
@@ -47,7 +47,7 @@ check_disk_space() {
     local required_space=5000000  # 5GB in KB
     local available_space=$(df -k . | awk 'NR==2 {print $4}')
 
-    echo "\nChecking available disk space..."
+    echo -e "\nChecking available disk space..."
     if [ $available_space -lt $required_space ]; then
         echo "Error: Insufficient disk space. Required: 5GB, Available: $(($available_space/1024/1024))GB"
         return 1
@@ -60,7 +60,7 @@ check_memory() {
     local required_memory=2000000  # 2GB in KB
     local available_memory=$(free -k | awk '/Mem:/ {print $2}')
 
-    echo "\nChecking system memory..."
+    echo -e "\nChecking system memory..."
     if [ $available_memory -lt $required_memory ]; then
         echo "Warning: Low memory. Recommended: 2GB, Available: $(($available_memory/1024/1024))GB"
     else
@@ -74,4 +74,4 @@ check_dependencies || exit 1
 check_disk_space || exit 1
 check_memory
 
-echo "\n=== Pre-installation checks completed successfully ==="
+echo -e "\n=== Pre-installation checks completed successfully ==="

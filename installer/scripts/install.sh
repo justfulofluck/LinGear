@@ -43,17 +43,15 @@ run_pre_install() {
 # Framework selection
 select_framework() {
     echo -e "\nSelect UI Framework:"
-    echo "1) Tkinter (Python-based)"
-    echo "2) Qt C++ (Feature-rich)"
-    echo "3) LVGL (Embedded-focused)"
+    echo "1) Qt C++ (Feature-rich)"
+    echo "2) LVGL (Embedded-focused)"
 
     while true; do
-        read -p "Enter choice [1-3]: " choice
+        read -p "Enter choice [1-2]: " choice
         case $choice in
-            1) echo "tkinter"; return ;;
-            2) echo "qt"; return ;;
-            3) echo "lvgl"; return ;;
-            *) echo "Invalid choice. Please select 1-3." ;;
+            1) echo "qt"; return ;;
+            2) echo "lvgl"; return ;;
+            *) echo "Invalid choice. Please select 1-2." ;;
         esac
     done
 }
@@ -103,6 +101,71 @@ setup_kiosk_service() {
     sudo chmod +x /usr/local/bin/kiosk-launcher.sh
 }
 
+# Build application
+build_application() {
+    local framework=$1
+    log_info "Building $framework application..."
+    
+    local src_dir="$INSTALLER_DIR/../../src/${framework}-app"
+    
+    if [ ! -d "$src_dir" ]; then
+        log_error "Source directory not found: $src_dir"
+        exit 1
+    fi
+
+    cd "$src_dir" || exit 1
+    
+    # Clean previous build
+    rm -rf build
+    mkdir -p build
+    cd build || exit 1
+
+    # Run CMake and Make
+    if ! cmake ..; then
+        log_error "CMake configuration failed"
+        exit 1
+    fi
+
+    if ! make -j$(nproc); then
+        log_error "Build failed"
+        exit 1
+    fi
+    
+    log_info "Build successful"
+}
+
+# Deploy application
+deploy_application() {
+    local framework=$1
+    log_info "Deploying application to $INSTALL_DIR/$APP_NAME..."
+
+    local build_dir="$INSTALLER_DIR/../../src/${framework}-app/build"
+    local target_dir="$INSTALL_DIR/$APP_NAME"
+    
+    sudo mkdir -p "$target_dir"
+    
+    # Copy artifacts based on framework
+    if [ "$framework" == "qt" ]; then
+        # Assuming binary name is 'qt-app' based on standard CMakeLists
+        if [ -f "$build_dir/qt-app" ]; then
+            sudo cp "$build_dir/qt-app" "$target_dir/"
+        else
+            log_error "Compiled binary 'qt-app' not found"
+            exit 1
+        fi
+    elif [ "$framework" == "lvgl" ]; then
+        if [ -f "$build_dir/lvgl-app" ]; then
+             sudo cp "$build_dir/lvgl-app" "$target_dir/"
+        else
+             log_error "Compiled binary 'lvgl-app' not found"
+             exit 1
+        fi
+    fi
+    
+    sudo chown -R "$USER_NAME:$USER_NAME" "$target_dir"
+    sudo chmod +x "$target_dir"/*
+}
+
 # Setup Plymouth splash
 setup_plymouth() {
     log_info "Setting up Plymouth boot splash..."
@@ -121,6 +184,8 @@ main() {
 
     setup_directories
     install_framework_deps "$framework"
+    build_application "$framework"
+    deploy_application "$framework"
     setup_autologin
     setup_kiosk_service "$framework"
     setup_plymouth
