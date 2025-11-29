@@ -1,117 +1,128 @@
-
-```markdown
 # LinGear
 
-**LinGear** is a modular, embedded Linux kiosk framework tailored for industrial and edge computing environments. It allows developers and integrators to deploy full-screen GUI applications—using **Qt**, **Tkinter**, or **LVGL**—through a fully automated installer. Everything from system dependencies to autologin and app launch is handled seamlessly.
+**LinGear** is a modular, embedded Linux kiosk framework tailored for industrial and edge computing environments. It allows developers and integrators to deploy full-screen GUI applications—using **Qt (C++)** or **LVGL**—through a fully automated installer.
+
+Unlike simple script runners, LinGear acts as an on-device build system. It **compiles your C++ source code** directly on the target machine and deploys the optimized binary for maximum performance.
 
 ---
 
 ## 🚀 Features
 
-- 🔹 **Modular GUI framework support** — choose from **Qt**, **Tkinter**, or **LVGL**
-- 🔹 **One-line installer** — automates dependency installation and configuration
-- 🔹 **Auto-login setup** — boots directly into your GUI application
-- 🔹 **Custom app name & user support** — clean deployments to `/opt/kiosk/<AppName>`
-- 🔹 **Extensible architecture** — easy to add new GUI frameworks and apps
+- 🔹 **Native Performance** — Compiles C++ code (Qt/LVGL) directly on the device.
+- 🔹 **One-line Installer** — Automates dependency installation, compilation, and configuration.
+- 🔹 **Seamless Boot** — Uses **Plymouth** to hide boot text and show a custom splash screen.
+- 🔹 **Auto-login** — Boots directly into your GUI application without a login prompt.
+- 🔹 **Secure Deployment** — Runs as a dedicated restricted user.
+
+---
+
+## 📋 Prerequisites
+
+Before you begin, ensure you have:
+
+1. **Hardware**: A Raspberry Pi, Industrial PC, or VM running Linux.
+2. **OS**: Ubuntu 20.04/22.04 LTS or Debian 11/12 (Server or Desktop).
+3. **Internet**: Required during installation to download dependencies.
+4. **Sudo Access**: You must have root/sudo privileges.
+
+---
+
+## 🛠️ How to Setup (Client Guide)
+
+Follow these simple steps to turn your fresh Linux installation into a dedicated Kiosk.
+
+### Step 1: Download the Project
+
+Open a terminal on your device and clone the repository:
+
+```bash
+git clone https://github.com/yourusername/LinGear.git
+cd LinGear
+```
+
+### Step 2: Prepare Your Application
+
+Place your C++ source code in the `src` directory.
+
+- **For Qt Apps**: Put your code in `src/qt-app/`. Ensure you have a `CMakeLists.txt`.
+- **For LVGL Apps**: Put your code in `src/lvgl-app/`.
+
+> **Note:** The project comes with "Hello World" examples by default, so you can test it immediately without writing code.
+
+### Step 3: Run the Installer
+
+Navigate to the installer script and run it:
+
+```bash
+cd installer/scripts
+sudo ./install.sh
+```
+
+### Step 4: Follow the Prompts
+
+The installer will ask you a few questions:
+
+1. **Username**: Enter a name for the kiosk user (e.g., `mydevice`).
+2. **Password**: Set a password for this user.
+3. **App Name**: Give your application a name (e.g., `MyDisplay`).
+4. **Framework**: Choose **1** for Qt or **2** for LVGL.
+
+### Step 5: Reboot
+
+Once the installation is complete, reboot your system:
+
+```bash
+sudo reboot
+```
+
+Your system will now boot past the text logs, show a splash screen, and launch your application automatically!
 
 ---
 
 ## 📁 Project Structure
 
 ```
-
 LinGear/
-├── installer/           # Installer scripts and configuration logic
+├── installer/           
+│   ├── scripts/         # Logic for install, build, and deploy
+│   ├── config/          # Systemd services and launchers
+│   └── plymouth/        # Boot splash themes
 ├── src/
-│   ├── qt-app/          # Sample or custom Qt application
-│   ├── tkinter-app/     # Sample or custom Tkinter application
-│   └── lvgl-app/        # Sample or custom LVGL application
-├── dependencies/        # Framework-specific dependencies
-└── project/             # Application-specific definitions
-
-````
+│   ├── qt-app/          # Your Qt C++ source code
+│   └── lvgl-app/        # Your LVGL C++ source code
+```
 
 ---
 
-## ⚙️ Installation
+## 🔧 Development Workflow
 
-Run the following on your Ubuntu-based embedded system:
+To update your application after the initial installation:
 
-```bash
-git clone https://github.com/yourusername/LinGear.git
-cd LinGear/installer
-sudo ./install.sh
-````
+1. **Edit Code**: Modify your source files in `src/qt-app` or `src/lvgl-app`.
+2. **Re-run Installer**:
 
-### 🧠 During Installation You’ll Be Asked For:
+    ```bash
+    sudo ./installer/scripts/install.sh
+    ```
 
-* Application **username** – used to create a Linux user for autologin
-* Application **password**
-* Application **name** – used for folders, services, and labels
-* GUI **framework** – choose from Qt, Tkinter, or LVGL
-* Application **project** – e.g., `HelloWorld`, if defined in `project/`
+3. **Select Same Options**: Choose the same App Name and Framework.
+4. **Automatic Rebuild**: The installer will detect the changes, re-compile your binary, and replace the running version.
 
 ---
 
-## 🗂 How It Works
+## ❓ Troubleshooting
 
-* Stores user config in `/etc/kiosk/`
-* Loads required dependencies from `dependencies.txt` or `requirements.txt`
-* Copies app from `src/<framework>/` to `/opt/kiosk/<AppName>/`
-* Sets up autologin for the new user
-* Configures a `systemd` service like `kiosk@<AppName>.service` to launch the app on boot
+**Q: My app doesn't start?**
+A: Check the logs: `journalctl -u kiosk -e`
 
----
+**Q: I see a "CMake Error"?**
+A: Ensure your `CMakeLists.txt` in `src/qt-app` is correct and all required Qt modules are listed.
 
-## 🛠 Development Workflow
-
-Want to update your GUI app?
-
-1. Modify your app inside `src/<framework>-app/`
-2. Re-run the installer:
-
-   ```bash
-   sudo ./install.sh
-   ```
-3. Choose the same app name — it will rebuild and redeploy it automatically.
-
----
-
-## 📌 Example Deployment
-
-* Application directory:
-  `/opt/kiosk/MyCoolApp/`
-
-* Systemd autostart service:
-  `kiosk@MyCoolApp.service`
-
----
-
-## ✨ Coming Soon
-
-* 🔸 Flutter frontend support
-* 🔸 WebKiosk (WebView + offline caching)
-* 🔸 GUI-based installer wizard
-* 🔸 Remote device management API
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
-See the [LICENSE](./LICENSE) file for details.
-
----
-
-## 🙌 Contributing
-
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+**Q: How do I stop the kiosk?**
+A: SSH into the device or switch TTY (Ctrl+Alt+F2) and run: `sudo systemctl stop kiosk`
 
 ---
 
 ## 📬 Contact
 
-bhavanbadhe@gmail.com
-
-```
-
+<bhavanbadhe@gmail.com>
