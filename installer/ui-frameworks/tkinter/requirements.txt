@@ -1,7 +1,0 @@
-# APT packages (handled in dependency-checker.sh or pre-install.sh)
-python3
-python3-tk
-python3-pip
-
-# Python packages (installed via pip)
-Pillow

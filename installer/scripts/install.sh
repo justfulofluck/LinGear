@@ -42,16 +42,16 @@ run_pre_install() {
 
 # Framework selection
 select_framework() {
-    echo -e "\nSelect UI Framework:"
-    echo "1) Qt C++ (Feature-rich)"
-    echo "2) LVGL (Embedded-focused)"
+    echo -e "\nSelect UI Framework:" >&2
+    echo "1) Qt C++ (Feature-rich)" >&2
+    echo "2) LVGL (Embedded-focused)" >&2
 
     while true; do
         read -p "Enter choice [1-2]: " choice
         case $choice in
             1) echo "qt"; return ;;
             2) echo "lvgl"; return ;;
-            *) echo "Invalid choice. Please select 1-2." ;;
+            *) echo "Invalid choice. Please select 1-2." >&2 ;;
         esac
     done
 }

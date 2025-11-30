@@ -38,7 +38,15 @@ check_packages() {
 
     if [ ${#missing_deps[@]} -ne 0 ]; then
         echo "Missing dependencies: ${missing_deps[*]}"
-        return 1
+        echo "Installing missing dependencies..."
+        sudo apt-get update
+        if sudo apt-get install -y "${missing_deps[@]}"; then
+            echo "Dependencies installed successfully."
+            return 0
+        else
+            echo "Failed to install dependencies."
+            return 1
+        fi
     fi
     echo "All dependencies are installed"
     return 0
